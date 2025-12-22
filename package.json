@@ -1,0 +1,14 @@
+{
+    "name": "@astrical/docs",
+    "description": "",
+    "version": "0.1.0",
+    "type": "module",
+    "main": "src/index.ts",
+    "exports": {},
+    "scripts": {},
+    "dependencies": {},
+    "devDependencies": {},
+    "peerDependencies": {
+        "astro": "*"
+    }
+}
