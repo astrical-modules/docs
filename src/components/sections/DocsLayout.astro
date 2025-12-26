@@ -1,0 +1,268 @@
+---
+/**
+ * DocsLayout.astro
+ *
+ * The main layout controller for documentation pages.
+ * Orchestrates the 3-column layout: Sidebar, Content, TOC.
+ *
+ * Logic:
+ * 1. Fetches the appropriate sidebar menu based on props.
+ * 2. Scans the 'main' components to generate the Table of Contents.
+ * 3. Enriches widgets with IDs for deep linking.
+ * 4. Renders the content with "Previous/Next" navigation.
+ */
+
+import type { Section as SectionProps } from "~/types";
+import SectionWrapper from "~/components/ui/SectionWrapper.astro";
+import { generateSection } from "~/utils/generator";
+import { getClasses } from "~/utils/theme";
+import { Icon } from "astro-icon/components";
+import {
+    fetchMenu,
+    getPagination,
+    getBreadcrumbs,
+} from "../../utils/navigation";
+import { generateTOC } from "../../utils/docs";
+import SidebarMenu from "../ui/SidebarMenu.astro";
+import PageTOC from "../ui/PageTOC.astro";
+import Breadcrumbs from "../ui/Breadcrumbs.astro";
+
+// Extend SectionProps with our specific needs
+interface Props extends SectionProps {
+    sidebar?: string; // ID of the sidebar menu to load
+}
+
+const {
+    id,
+    components,
+    classes: rawClasses = {},
+    bg = "",
+    sidebar = "docs_sidebar",
+} = Astro.props;
+
+// 1. Fetch Menu Data
+const menuData = await fetchMenu(sidebar);
+
+// 2. Generate Table of Contents
+const rawWidgets = (components?.main || []) as any[];
+const tocItems = generateTOC(rawWidgets);
+
+// 3. Prepare Widgets
+const enrichedWidgets = rawWidgets.map((widget, index) => {
+    const tocItem = tocItems[index]; // 1:1 mapping
+    return {
+        ...widget,
+        id: tocItem?.id, // Inject the ID calculated by generateTOC
+    };
+});
+
+// Now generate the component instances
+const resolvedWidgets = generateSection(enrichedWidgets);
+
+// 4. Calculate Navigation
+const currentPath = Astro.url.pathname;
+const pagination = getPagination(menuData, currentPath);
+const breadcrumbs = getBreadcrumbs(menuData, currentPath);
+
+const classes = getClasses("Section+DocsLayout", rawClasses);
+---
+
+<SectionWrapper type="docs-layout" id={id} classes={classes.wrapper} bg={bg}>
+    <div class={classes.grid_container} data-name="docs-layout-grid">
+        {/* Mobile Header (Menu Toggle) */}
+        <div class={classes.mobile_header}>
+            <button
+                id="docs-mobile-menu-toggle"
+                class={classes.mobile_menu_toggle}
+                aria-label="Toggle Menu"
+            >
+                <Icon name="tabler:menu-2" class="w-6 h-6" />
+            </button>
+        </div>
+
+        {/* Left Sidebar: Navigation */}
+        <aside
+            id="docs-sidebar-left"
+            class={classes.sidebar_left}
+            data-name="docs-sidebar-left"
+        >
+            <div class="sidebar-inner" data-name="sidebar-scroll-wrapper">
+                <nav aria-label="Main Navigation" data-name="docs-sidebar-nav">
+                    <SidebarMenu data={menuData} activeSlug={currentPath} />
+                </nav>
+            </div>
+            {/* Backdrop for mobile */}
+            <div
+                id="docs-sidebar-backdrop"
+                class="fixed inset-0 bg-black/50 z-30 hidden md:hidden glass-backdrop"
+                aria-hidden="true"
+                data-name="mobile-backdrop"
+            >
+            </div>
+        </aside>
+
+        {/* Center Column: Content */}
+        <main
+            class={classes.content_main}
+            id="main-content"
+            data-name="docs-content-main"
+        >
+            <div class={classes.content_header} data-name="docs-content-header">
+                {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
+            </div>
+
+            {/* Mobile Table of Contents */}
+            <div class={classes.mobile_toc_wrapper} data-name="mobile-toc">
+                <details>
+                    <summary class={classes.mobile_toc_summary}>
+                        <span>On this page</span>
+                        <Icon
+                            name="tabler:chevron-down"
+                            class="w-4 h-4 transition-transform ui-open:rotate-180"
+                        />
+                    </summary>
+                    <div class="mt-4 pt-4 border-t border-border">
+                        <PageTOC items={tocItems} />
+                    </div>
+                </details>
+            </div>
+
+            <div
+                class={classes.widgets_container}
+                data-name="docs-widgets-container"
+            >
+                {
+                    resolvedWidgets.map(({ component: Component, props }) => (
+                        <section
+                            id={props.id as string}
+                            class={classes.widget_wrapper}
+                            data-name="docs-widget-wrapper"
+                        >
+                            <Component {...props} />
+                        </section>
+                    ))
+                }
+            </div>
+
+            <div class={classes.content_footer} data-name="docs-content-footer">
+                <nav
+                    class={classes.pagination_nav}
+                    aria-label="Pagination"
+                    data-name="docs-pagination-nav"
+                >
+                    {
+                        pagination.prev ? (
+                            <a
+                                href={pagination.prev.href}
+                                class={classes.nav_btn}
+                                data-name="docs-nav-btn-prev"
+                            >
+                                <span
+                                    class={classes.nav_btn_label}
+                                    data-name="docs-nav-btn-label"
+                                >
+                                    Previous
+                                </span>
+                                <span
+                                    class={classes.nav_btn_title}
+                                    data-name="docs-nav-btn-title"
+                                >
+                                    {pagination.prev.label ||
+                                        pagination.prev.text}
+                                </span>
+                            </a>
+                        ) : (
+                            <div data-name="docs-nav-spacer" />
+                        )
+                    }
+                    {
+                        pagination.next && (
+                            <a
+                                href={pagination.next.href}
+                                class={`${classes.nav_btn} text-right items-end`}
+                                data-name="docs-nav-btn-next"
+                            >
+                                <span
+                                    class={classes.nav_btn_label}
+                                    data-name="docs-nav-btn-label"
+                                >
+                                    Next
+                                </span>
+                                <span
+                                    class={classes.nav_btn_title}
+                                    data-name="docs-nav-btn-title"
+                                >
+                                    {pagination.next.label ||
+                                        pagination.next.text}
+                                </span>
+                            </a>
+                        )
+                    }
+                </nav>
+            </div>
+        </main>
+
+        {/* Right Sidebar: Table of Contents */}
+        <aside class={classes.sidebar_right} data-name="docs-sidebar-right">
+            <nav aria-label="Table of Contents" data-name="docs-toc-nav">
+                <PageTOC items={tocItems} />
+            </nav>
+        </aside>
+    </div>
+</SectionWrapper>
+
+<style>
+    /* 
+     * Mobile Menu Styles need to be functional / critical usually, 
+     * but we try to use Tailwind classes where possible.
+     * Some state-based styles are easier here or in style.yaml if we toggle classes.
+     */
+
+    /* When .is-open is added to the sidebar via JS */
+    :global(.docs-sidebar-open) {
+        overflow: hidden; /* Prevent body scroll */
+    }
+
+    #docs-sidebar-left.is-open {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        background-color: var(--color-bg-page);
+        padding: 2rem;
+        overflow-y: auto;
+        width: 80%;
+        max-width: 300px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    #docs-sidebar-backdrop.is-open {
+        display: block;
+    }
+</style>
+
+<script>
+    // Logic for Mobile Menu Toggle
+    const toggleBtn = document.getElementById("docs-mobile-menu-toggle");
+    const sidebar = document.getElementById("docs-sidebar-left");
+    const backdrop = document.getElementById("docs-sidebar-backdrop");
+    const body = document.body;
+
+    if (toggleBtn && sidebar && backdrop) {
+        const toggleMenu = () => {
+            const isOpen = sidebar.classList.contains("is-open");
+            if (isOpen) {
+                sidebar.classList.remove("is-open");
+                backdrop.classList.remove("is-open");
+                body.classList.remove("docs-sidebar-open");
+            } else {
+                sidebar.classList.add("is-open");
+                backdrop.classList.add("is-open");
+                body.classList.add("docs-sidebar-open");
+            }
+        };
+
+        toggleBtn.addEventListener("click", toggleMenu);
+        backdrop.addEventListener("click", toggleMenu);
+    }
+</script>

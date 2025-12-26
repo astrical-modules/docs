@@ -1,0 +1,47 @@
+---
+/**
+ * Breadcrumbs.astro
+ * Renders the breadcrumb navigation trail.
+ */
+import type { MenuItem } from "../../utils/navigation";
+import { getClasses } from "~/utils/theme";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+    items: MenuItem[];
+    classes?: Record<string, any>;
+}
+
+const { items, classes: rawClasses = {} } = Astro.props;
+const classes = getClasses("UI+Breadcrumbs", rawClasses);
+---
+
+<nav aria-label="Breadcrumb" class={classes.container} data-name="breadcrumbs">
+    <ol class={classes.list}>
+        {
+            items.map((item, index) => {
+                const isLast = index === items.length - 1;
+                return (
+                    <li class={classes.item} data-name="breadcrumb-item">
+                        {index > 0 && (
+                            <Icon
+                                name="tabler:chevron-right"
+                                class={classes.separator}
+                                aria-hidden="true"
+                            />
+                        )}
+                        {isLast ? (
+                            <span class={classes.current} aria-current="page">
+                                {item.label || item.text}
+                            </span>
+                        ) : (
+                            <a href={item.href || "#"} class={classes.link}>
+                                {item.label || item.text}
+                            </a>
+                        )}
+                    </li>
+                );
+            })
+        }
+    </ol>
+</nav>

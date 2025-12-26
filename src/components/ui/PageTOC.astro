@@ -1,0 +1,66 @@
+---
+/**
+ * PageTOC.astro
+ * Renders the Table of Contents for the current page.
+ */
+import type { TOCItem } from "../../utils/docs";
+import { getClasses } from "~/utils/theme";
+
+interface Props {
+    items: TOCItem[];
+    classes?: Record<string, any>;
+}
+
+const { items, classes: rawClasses = {} } = Astro.props;
+const classes = getClasses("UI+PageTOC", rawClasses);
+---
+
+<div class={classes.container} data-name="page-toc-container">
+    <p class={classes.header} data-name="page-toc-header">On this page</p>
+    <ul class={classes.list} data-name="page-toc-list">
+        {
+            items.map((item) => (
+                <li
+                    class={`${classes.item} toc-type-${item.type}`}
+                    data-name="page-toc-item"
+                >
+                    <a
+                        href={`#${item.id}`}
+                        class={classes.link}
+                        data-name="page-toc-link"
+                    >
+                        {item.label}
+                    </a>
+                </li>
+            ))
+        }
+    </ul>
+</div>
+
+<script>
+    // Simple active state highlighter for TOC
+    // This is a client-side enhancement
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                const id = entry.target.getAttribute("id");
+                if (entry.isIntersecting) {
+                    document.querySelectorAll(".toc-link").forEach((link) => {
+                        link.classList.remove("text-primary", "font-medium");
+                    });
+                    const activeLink = document.querySelector(
+                        `.toc-link[href="#${id}"]`,
+                    );
+                    if (activeLink) {
+                        activeLink.classList.add("text-primary", "font-medium");
+                    }
+                }
+            });
+        },
+        { rootMargin: "-100px 0px -66%" },
+    );
+
+    document.querySelectorAll("section[id]").forEach((section) => {
+        observer.observe(section);
+    });
+</script>

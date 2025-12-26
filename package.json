@@ -6,8 +6,9 @@
     "main": "src/index.ts",
     "exports": {},
     "scripts": {},
-    "dependencies": {},
-    "devDependencies": {},
+    "dependencies": {
+        "marked": "^17.0.1"
+    },
     "peerDependencies": {
         "astro": "*"
     }

@@ -1,0 +1,79 @@
+# Docs Module Default Styles
+
+# 1. Section: DocsLayout
+Section+DocsLayout:
+  grid_container: 'grid grid-cols-1 md:grid-cols-[250px_1fr] lg:grid-cols-[250px_1fr_200px] gap-8 max-w-7xl mx-auto px-4 py-8 w-full'
+  sidebar_left: 'hidden md:block'
+  sidebar_right: 'hidden lg:block' 
+  content_main: 'min-w-0'
+  content_header: 'mb-8'
+  widgets_container: 'space-y-12'
+  widget_wrapper: 'scroll-mt-20'
+  content_footer: 'mt-16 pt-8 border-t border-border'
+  pagination_nav: 'flex justify-between gap-4'
+  nav_btn: 'group flex flex-col p-4 w-full max-w-[45%] border border-border rounded-lg hover:border-primary hover:bg-surface-elevated transition-colors text-left'
+  nav_btn_label: 'text-xs font-bold uppercase tracking-wider text-muted mb-1'
+  nav_btn_title: 'text-sm font-semibold text-primary group-hover:underline'
+  # Mobile Styles
+  mobile_header: 'md:hidden mb-6 flex items-center justify-between'
+  mobile_menu_toggle: 'p-2 -ml-2 text-muted hover:text-primary'
+  mobile_toc_wrapper: 'md:hidden mb-8 p-4 bg-surface rounded-lg border border-border'
+  mobile_toc_summary: 'cursor-pointer font-semibold flex items-center justify-between'
+
+# 2. UI: SidebarMenu
+UI+SidebarMenu:
+  list: 'list-none p-0 m-0 space-y-1'
+  item: ''
+  link: 'block py-1.5 px-2 text-sm text-muted hover:text-primary transition-colors rounded-md hover:bg-surface-elevated'
+  link_active: 'bg-primary/10 text-primary font-medium'
+  label: 'block py-2 px-2 text-xs font-bold uppercase tracking-wider text-heading mt-4 first:mt-0'
+  # Indentation levels handled by simple classes or recursive logic, 
+  # but here we define base styles. 
+  # Nested lists?
+  list_nested: 'pl-4 mt-1 border-l border-border'
+
+# 3. UI: PageTOC
+UI+PageTOC:
+  container: 'sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto pl-4 border-l border-border'
+  header: 'text-xs font-bold uppercase tracking-wider text-heading mb-2'
+  list: 'list-none p-0 m-0 space-y-2'
+  item: 'text-sm'
+  link: 'block text-muted hover:text-primary transition-colors py-0.5 line-clamp-1'
+  link_active: 'text-primary font-medium'
+
+# 4. UI: Breadcrumbs
+UI+Breadcrumbs:
+  container: 'mb-6'
+  list: 'flex items-center flex-wrap text-sm gap-1'
+  item: 'flex items-center text-muted'
+  link: 'hover:text-primary transition-colors'
+  current: 'font-medium text-heading'
+  separator: 'w-4 h-4 mx-1 text-muted/50'
+
+# 5. Component: Prose
+Component+Prose:
+  # Wrapper container styles (from TitledWidgetWrapper)
+  wrapper: 
+    container: 'py-12 md:py-16'
+    wrapper: 'max-w-4xl mx-auto px-4 md:px-6'
+    
+  # Headline styles
+  headline:
+    container: 'mb-8 md:mb-12 max-w-3xl'
+    title: 'text-3xl md:text-4xl font-bold tracking-tight text-heading mb-4'
+    subtitle: 'text-xl text-muted leading-relaxed'
+    tagline: 'text-sm font-semibold uppercase tracking-wider text-primary mb-2'
+
+  # Content (Typography)
+  # using Tailwind Typography plugin classes (prose) if available, 
+  # or manual styles. Since we are using Vanilla CSS/Tailwind, 
+  # let's define standard typography.
+  content: >-
+    prose prose-lg dark:prose-invert max-w-none
+    prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-heading
+    prose-p:text-muted prose-p:leading-7
+    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+    prose-strong:text-heading prose-strong:font-semibold
+    prose-code:text-primary prose-code:bg-primary/10 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+    prose-pre:bg-surface-elevated prose-pre:border prose-pre:border-border
+    prose-img:rounded-lg prose-img:shadow-md

@@ -1,0 +1,82 @@
+---
+/**
+ * SidebarMenu.astro
+ * Renders the navigation menu for the documentation sidebar.
+ * Supports recursive nesting of menu items.
+ */
+import type { MenuItem } from "../../utils/navigation";
+import { getClasses } from "~/utils/theme";
+
+interface Props {
+    data: MenuItem[];
+    activeSlug?: string;
+    level?: number;
+    classes?: Record<string, any>;
+}
+
+const {
+    data,
+    activeSlug = "",
+    level = 0,
+    classes: rawClasses = {},
+} = Astro.props;
+
+// Helper to check if an item or its children is active
+const isActive = (item: MenuItem): boolean => {
+    if (item.href === activeSlug) return true;
+    if (item.href && activeSlug.startsWith(item.href) && item.href !== "/")
+        return true;
+    if (item.items) return item.items.some(isActive);
+    return false;
+};
+
+// Normalize path for comparison
+const normalize = (path?: string) => path?.replace(/\/$/, "") || "";
+const current = normalize(activeSlug);
+
+const classes = getClasses("UI+SidebarMenu", rawClasses);
+---
+
+<ul
+    class:list={[classes.list, level > 0 ? classes.list_nested : ""]}
+    data-name={`sidebar-menu-list-level-${level}`}
+>
+    {
+        data.map((item) => {
+            const active = item.href && normalize(item.href) === current;
+
+            return (
+                <li class={classes.item} data-name="sidebar-menu-item">
+                    {item.href ? (
+                        <a
+                            href={item.href}
+                            class:list={[
+                                classes.link,
+                                active ? classes.link_active : "",
+                            ]}
+                            data-name="sidebar-menu-link"
+                        >
+                            {item.label || item.text || item.href}
+                        </a>
+                    ) : (
+                        <span
+                            class={classes.label}
+                            data-name="sidebar-menu-label"
+                        >
+                            {item.label || item.text}
+                        </span>
+                    )}
+
+                    {item.items && item.items.length > 0 && (
+                        <Astro.self
+                            data={item.items}
+                            activeSlug={activeSlug}
+                            level={level + 1}
+                            classes={rawClasses}
+                        />
+                    )}
+                </li>
+            );
+        })
+    }
+</ul>
