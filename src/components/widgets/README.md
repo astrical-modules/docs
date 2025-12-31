@@ -96,7 +96,7 @@ Modules can introduce new Widgets to the system.
 
 ### The Integration Flow
 1.  **Create Files**: AI creates `MyModuleWidget.astro` and `MyModuleWidget.spec.yaml` in the module directory.
-2.  **Register Spec**: The `generate-spec` script scans all module directories for `.spec.yaml` files and merges them into the master `dev/content.spec.yaml`.
+2.  **Register Spec**: The `generate-spec` script scans all module directories for `.spec.yaml` files and merges them into the master `dev/03_content_ops/content.spec.yaml`.
 3.  **Register Styles**: The module should document (or provide) the necessary `Component+MyModuleWidget` entries for `style.yaml`.
 
 ---
