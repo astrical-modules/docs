@@ -26,6 +26,7 @@ import { generateTOC } from "../../utils/docs";
 import SidebarMenu from "../ui/SidebarMenu.astro";
 import PageTOC from "../ui/PageTOC.astro";
 import Breadcrumbs from "../ui/Breadcrumbs.astro";
+import SearchBar from "~/components/ui/SearchBar.astro";
 
 // Extend SectionProps with our specific needs
 interface Props extends SectionProps {
@@ -87,6 +88,9 @@ const classes = getClasses("Section+DocsLayout", rawClasses);
             data-name="docs-sidebar-left"
         >
             <div class="sidebar-inner" data-name="sidebar-scroll-wrapper">
+                <div class="px-4 py-2">
+                    <SearchBar />
+                </div>
                 <nav aria-label="Main Navigation" data-name="docs-sidebar-nav">
                     <SidebarMenu data={menuData} activeSlug={currentPath} />
                 </nav>
@@ -106,6 +110,7 @@ const classes = getClasses("Section+DocsLayout", rawClasses);
             class={classes.content_main}
             id="main-content"
             data-name="docs-content-main"
+            data-pagefind-body
         >
             <div class={classes.content_header} data-name="docs-content-header">
                 {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}

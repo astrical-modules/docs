@@ -1,0 +1,21 @@
+Component+DefinitionTable:
+  type: object
+  properties:
+    table_container: { type: string }
+    table: { type: string }
+    thead: { type: string }
+    tbody: { type: string }
+    tr: { type: string }
+    th: { type: string }
+    td: { type: string }
+    code_cell: { type: string }
+    badge: { type: string }
+    badge_string: { type: string }
+    badge_integer: { type: string }
+    badge_boolean: { type: string }
+    badge_object: { type: string }
+    badge_default: { type: string }
+    icon_true: { type: string }
+    icon_false: { type: string }
+    markdown_cell: { type: string }
+    text_cell: { type: string }

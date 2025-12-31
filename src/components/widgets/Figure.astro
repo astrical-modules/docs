@@ -1,0 +1,89 @@
+---
+import { getClasses } from '~/utils/theme';
+import type { TitledWidget } from '~/types';
+import TitledWidgetWrapper from '~/components/ui/TitledWidgetWrapper.astro';
+import { Image } from 'astro:assets';
+
+export interface Props extends TitledWidget {
+  src: string;
+  alt: string;
+  caption?: string;
+  size?: 'small' | 'standard' | 'wide' | 'full';
+  themeMode?: 'normal' | 'dim' | 'invert' | 'white-bg';
+  lightbox?: boolean;
+}
+
+const {
+  id,
+  title,
+  subtitle,
+  tagline,
+  bg,
+  classes: rawClasses = {},
+  src,
+  alt,
+  caption,
+  size = 'standard',
+  themeMode = 'normal',
+  lightbox = true,
+} = Astro.props;
+
+const classes = getClasses('Component+Figure', rawClasses);
+const widgetId = id || `figure-${Math.random().toString(36).substring(2, 9)}`;
+
+// Helper to determine size class is handled in styles via data attributes
+---
+
+<TitledWidgetWrapper
+  type="Figure"
+  id={id}
+  classes={classes}
+  bg={bg}
+  title={title}
+  subtitle={subtitle}
+  tagline={tagline}
+>
+  <figure class={classes.figure} id={widgetId} data-size={size}>
+    <div 
+      class={classes.wrapper}
+      data-theme-mode={themeMode}
+      data-lightbox={String(lightbox)}
+    >
+      <img
+        src={src}
+        alt={alt}
+        class={classes.image}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    {caption && <figcaption class={classes.caption}>{caption}</figcaption>}
+    
+    {lightbox && (
+      <dialog class={classes.lightbox_modal}>
+        <div class={classes.lightbox_content}>
+             <img src={src} alt={alt} class="max-w-full max-h-screen object-contain" />
+             <button class={classes.lightbox_close} aria-label="Close">×</button>
+        </div>
+      </dialog>
+    )}
+  </figure>
+</TitledWidgetWrapper>
+
+<script>
+  // Lightbox Logic
+  const figures = document.querySelectorAll('figure[data-size]');
+  figures.forEach(fig => {
+      const wrapper = fig.querySelector('[data-lightbox="true"]');
+      const modal = fig.querySelector('dialog');
+      const closeBtn = modal?.querySelector('button');
+      
+      if (wrapper && modal) {
+          wrapper.addEventListener('click', () => modal.showModal());
+          closeBtn?.addEventListener('click', () => modal.close());
+          modal.addEventListener('click', (e) => {
+              if (e.target === modal) modal.close();
+          });
+      }
+  });
+</script>

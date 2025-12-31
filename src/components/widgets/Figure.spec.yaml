@@ -1,0 +1,9 @@
+Component+Figure:
+  type: object
+  properties:
+    src: { type: string }
+    alt: { type: string }
+    caption: { type: string }
+    size: { type: string, enum: ['small', 'standard', 'wide', 'full'] }
+    themeMode: { type: string, enum: ['normal', 'dim', 'invert', 'white-bg'] }
+    lightbox: { type: boolean }

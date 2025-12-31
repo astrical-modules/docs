@@ -1,0 +1,17 @@
+Component+Endpoint:
+  type: object
+  properties:
+    method: { type: string, enum: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] }
+    path: { type: string }
+    description: { type: string }
+    parameters:
+      type: array
+      items: { type: object, additionalProperties: true }
+    responses:
+      type: array
+      items:
+        type: object
+        properties:
+          status: { type: number }
+          description: { type: string }
+          body: { type: string }

@@ -1,0 +1,6 @@
+Component+Mermaid:
+  type: object
+  properties:
+    chart: { type: string }
+    caption: { type: string }
+    height: { type: string }

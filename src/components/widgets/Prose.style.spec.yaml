@@ -1,0 +1,4 @@
+Component+Prose:
+  type: object
+  properties:
+    content: { type: string }

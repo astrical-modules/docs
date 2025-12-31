@@ -1,0 +1,63 @@
+---
+import { getClasses } from '~/utils/theme';
+import type { TitledWidget } from '~/types';
+import TitledWidgetWrapper from '~/components/ui/TitledWidgetWrapper.astro';
+
+export interface Props extends TitledWidget {
+  chart: string;
+  caption?: string;
+  height?: string;
+}
+
+const {
+  id,
+  title,
+  subtitle,
+  tagline,
+  bg,
+  classes: rawClasses = {},
+  chart,
+  caption,
+  height,
+} = Astro.props;
+
+const classes = getClasses('Component+Mermaid', rawClasses);
+const widgetId = id || `mermaid-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+<TitledWidgetWrapper
+  type="Mermaid"
+  id={id}
+  classes={classes}
+  bg={bg}
+  title={title}
+  subtitle={subtitle}
+  tagline={tagline}
+>
+  <figure class={classes.figure} id={widgetId}>
+    <div class={classes.wrapper}>
+      <div 
+        class="mermaid" 
+        data-processed="false"
+      >
+        {chart}
+      </div>
+    </div>
+    {caption && <figcaption class={classes.caption}>{caption}</figcaption>}
+  </figure>
+</TitledWidgetWrapper>
+
+<script>
+  if (document.querySelector('.mermaid')) {
+    import('mermaid').then((mermaid) => {
+      mermaid.default.initialize({
+        startOnLoad: true,
+        theme: 'base',
+        themeVariables: window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? { darkMode: true, primaryColor: '#3b82f6', noteBkgColor: '#1e293b', noteTextColor: '#e2e8f0', lineColor: '#94a3b8' }
+          : { darkMode: false }
+      });
+      mermaid.default.run();
+    }).catch(e => console.error('Mermaid failed to load', e));
+  }
+</script>

@@ -1,0 +1,88 @@
+---
+import { Icon } from 'astro-icon/components';
+import { getClasses } from '~/utils/theme';
+import { marked } from 'marked';
+import type { TitledWidget } from '~/types';
+import TitledWidgetWrapper from '~/components/ui/TitledWidgetWrapper.astro';
+
+export interface Column {
+  key: string;
+  label: string;
+  format?: 'text' | 'code' | 'badge' | 'boolean' | 'markdown';
+}
+
+export interface Props extends TitledWidget {
+  columns: Array<Column>;
+  rows: Array<Record<string, any>>;
+}
+
+const {
+  id,
+  title,
+  subtitle,
+  tagline,
+  bg,
+  classes: rawClasses = {},
+  columns = [],
+  rows = [],
+} = Astro.props;
+
+const classes = getClasses('Component+DefinitionTable', rawClasses);
+
+// Helper for markdown parsing
+const parseMarkdown = (text: string) => marked.parse(text || '', { async: false });
+---
+
+<TitledWidgetWrapper
+  type="DefinitionTable"
+  id={id}
+  classes={classes}
+  bg={bg}
+  title={title}
+  subtitle={subtitle}
+  tagline={tagline}
+>
+  <div class={classes.table_container}>
+    <table class={classes.table}>
+      <thead class={classes.thead}>
+        <tr>
+          {columns.map((col) => (
+            <th class={classes.th}>
+              {col.label}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody class={classes.tbody}>
+        {rows.map((row) => (
+          <tr class={classes.tr}>
+            {columns.map((col) => {
+              const value = row[col.key];
+              return (
+                <td class={classes.td} data-label={col.label}>
+                  {col.format === 'code' && (
+                    <code class={classes.code_cell}>{value}</code>
+                  )}
+                  {col.format === 'badge' && (
+                    <span class={`${classes.badge} ${classes[`badge_${String(value).toLowerCase()}`] || classes.badge_default}`}>
+                      {value}
+                    </span>
+                  )}
+                  {col.format === 'boolean' && (
+                     value ? <Icon name="tabler:check" class={classes.icon_true} /> : <span class={classes.icon_false}>-</span>
+                  )}
+                  {col.format === 'markdown' && (
+                    <div class={classes.markdown_cell} set:html={parseMarkdown(String(value))} />
+                  )}
+                  {!['code', 'badge', 'boolean', 'markdown'].includes(col.format || '') && (
+                    <span class={classes.text_cell}>{value}</span>
+                  )}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</TitledWidgetWrapper>

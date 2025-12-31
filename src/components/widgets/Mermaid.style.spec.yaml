@@ -1,0 +1,6 @@
+Component+Mermaid:
+  type: object
+  properties:
+    figure: { type: string }
+    wrapper: { type: string }
+    caption: { type: string }

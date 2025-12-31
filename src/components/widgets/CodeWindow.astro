@@ -1,0 +1,240 @@
+---
+import { Code } from 'astro/components';
+import type { TitledWidget } from '~/types';
+import TitledWidgetWrapper from '~/components/ui/TitledWidgetWrapper.astro';
+import { getClasses } from '~/utils/theme';
+import { loadSnippet } from '../../utils/codeLoader';
+import { Icon } from 'astro-icon/components';
+
+export interface CodeTab {
+  title: string;
+  language?: string;
+  code?: string;
+  src?: string;
+  region?: string;
+}
+
+export interface Props extends TitledWidget {
+  language?: string;
+  code?: string;
+  src?: string;
+  region?: string;
+  highlight?: string; // e.g. "1-3, 5"
+  tabs?: Array<CodeTab>;
+  tabGroup?: string;
+}
+
+const {
+  id,
+  title,
+  subtitle,
+  tagline,
+  bg,
+  classes: rawClasses = {},
+  
+  language = 'text',
+  code = '',
+  src,
+  region,
+  highlight,
+  tabs = [],
+  tabGroup,
+} = Astro.props;
+
+const classes = getClasses('Component+CodeWindow', rawClasses);
+
+// Logic to gather tabs content
+let processedTabs: Array<CodeTab & { content: string }> = [];
+
+if (tabs.length > 0) {
+  // Multi-tab mode
+  processedTabs = await Promise.all(tabs.map(async (tab) => {
+    let content = tab.code || '';
+    if (tab.src) {
+      content = await loadSnippet(tab.src, tab.region);
+    }
+    return {
+      ...tab,
+      content,
+      language: tab.language || language || 'text'
+    };
+  }));
+} else {
+  // Single mode
+  let content = code;
+  if (src) {
+    content = await loadSnippet(src, region);
+  }
+  processedTabs = [{
+    title: (typeof title === 'string' ? title : '') || 'Code', // Fallback title
+    language: language,
+    content: content,
+  }];
+}
+
+// Generate unique ID for tab logic if not provided
+const widgetId = id || `code-window-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+<TitledWidgetWrapper
+  type="CodeWindow"
+  id={id}
+  classes={classes}
+  bg={bg}
+  title={title}
+  subtitle={subtitle}
+  tagline={tagline}
+>
+  <div 
+    class={classes.window_container} 
+    id={widgetId}
+    data-tab-group={tabGroup}
+  >
+    {/* Header / Tabs */}
+    <div class={classes.header}>
+      {/* Window Controls (Mac style dots) or Tabs */}
+      {tabs.length > 0 ? (
+        <div class={classes.tabs_container} role="tablist">
+          {processedTabs.map((tab, index) => (
+            <button
+              id={`${widgetId}-tab-${index}`}
+              type="button"
+              role="tab"
+              aria-selected={index === 0 ? 'true' : 'false'}
+              aria-controls={`${widgetId}-panel-${index}`}
+              data-tab-index={index}
+              data-tab-label={tab.title.toLowerCase()}
+              class:list={[
+                classes.tab_button,
+                index === 0 ? classes.tab_button_active : ''
+              ]}
+            >
+              {tab.title}
+            </button>
+          ))}
+        </div>
+      ) : (
+         /* Single File Header */
+        <div class={classes.single_header}>
+          <div class="flex gap-1.5 px-3">
+             <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+             <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+             <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+          </div>
+          {typeof title === 'string' && <span class={classes.filename}>{title}</span>}
+          <div class="flex-1"></div>
+        </div>
+      )}
+      
+      {/* Copy Button (Global for window) - Implementation complexity: per tab or global? 
+          Simple version: Per tab copy button inside panel, or global if single.
+          Design says "Smart Copy" button. Let's put it in the header right side.
+      */}
+      <div class="flex items-center px-2">
+         {/* Placeholder for Copy Button Logic - simpler to implement inside each panel or via specific JS */}
+      </div>
+    </div>
+
+    {/* Content Panels */}
+    <div class={classes.content_area}>
+      {processedTabs.map((tab, index) => (
+         <div
+           id={`${widgetId}-panel-${index}`}
+           role="tabpanel"
+           aria-labelledby={`${widgetId}-tab-${index}`}
+           class:list={[
+             classes.panel,
+             index !== 0 ? 'hidden' : ''
+           ]}
+         >
+           <div class="relative group">
+             {/* Copy Button */}
+             <button 
+               class={classes.copy_button}
+               aria-label="Copy code"
+               data-code={encodeURIComponent(tab.content)}
+               onclick="
+                 const code = decodeURIComponent(this.getAttribute('data-code'));
+                 navigator.clipboard.writeText(code);
+                 this.classList.add('copied');
+                 setTimeout(() => this.classList.remove('copied'), 2000);
+               "
+             >
+               <Icon name="tabler:copy" class="w-5 h-5 group-[.copied]:hidden" />
+               <Icon name="tabler:check" class="w-5 h-5 hidden group-[.copied]:block text-green-500" />
+             </button>
+
+             <Code 
+               code={tab.content} 
+               lang={tab.language as any} 
+               theme="github-dark" 
+               class={classes.code_block} 
+             />
+           </div>
+         </div>
+      ))}
+    </div>
+  </div>
+</TitledWidgetWrapper>
+
+<script>
+  // Tab Switching Logic
+  document.querySelectorAll('[role="tablist"]').forEach(tabList => {
+    const buttons = tabList.querySelectorAll('[role="tab"]');
+    const widget = tabList.closest('[data-tab-group]') || tabList.closest('[id]');
+    
+    // Tab Group Sync Logic (Basic)
+    const tabGroup = widget?.getAttribute('data-tab-group');
+    
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const index = btn.getAttribute('data-tab-index');
+        const label = btn.getAttribute('data-tab-label');
+        
+        // 1. Switch local tabs
+        switchTab(widget, index);
+        
+        // 2. Sync if part of a group
+        if (tabGroup && label) {
+             syncTabs(tabGroup, label);
+        }
+      });
+    });
+  });
+
+  function switchTab(widget, index) {
+      if (!widget) return;
+      
+      const buttons = widget.querySelectorAll('[role="tab"]');
+      const panels = widget.querySelectorAll('[role="tabpanel"]');
+      
+      buttons.forEach(b => {
+         const isActive = b.getAttribute('data-tab-index') === index;
+         b.setAttribute('aria-selected', isActive);
+         b.classList.toggle('active', isActive); // Need to coordinate with specific utility classes
+         // For now relying on standard classList manipulation if classes are static, 
+         // but since they are dynamic form props, we probably need a data attribute driven style or specific active class name in style.yaml
+         
+         // Using a data-state attribute is safer for styling
+         b.setAttribute('data-state', isActive ? 'active' : 'inactive');
+      });
+
+      panels.forEach(p => {
+         const isActive = p.id.endsWith(`-panel-${index}`);
+         p.classList.toggle('hidden', !isActive);
+      });
+  }
+  
+  function syncTabs(group, label) {
+      // Find all other widgets with same group
+      const allWidgets = document.querySelectorAll(`[data-tab-group="${group}"]`);
+      allWidgets.forEach(w => {
+          // Find button with same label
+          const btn = w.querySelector(`[data-tab-label="${label}"]`);
+          if (btn) {
+              const index = btn.getAttribute('data-tab-index');
+              switchTab(w, index);
+          }
+      });
+  }
+</script>

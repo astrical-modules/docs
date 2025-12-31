@@ -1,0 +1,13 @@
+Component+Endpoint:
+  type: object
+  properties:
+    container: { type: string }
+    header: { type: string }
+    method_badge: { type: string }
+    path: { type: string }
+    description: { type: string }
+    split_layout: { type: string }
+    left_col: { type: string }
+    right_col: { type: string }
+    params_table: { type: string }
+    response_window: { type: string }

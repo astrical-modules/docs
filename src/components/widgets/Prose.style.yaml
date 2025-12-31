@@ -1,0 +1,2 @@
+Component+Prose:
+  content: 'prose dark:prose-invert max-w-none prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:tracking-tighter prose-a:text-primary prose-img:rounded-lg prose-img:shadow-md'

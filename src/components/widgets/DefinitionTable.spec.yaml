@@ -1,0 +1,16 @@
+Component+DefinitionTable:
+  type: object
+  properties:
+    columns:
+      type: array
+      items:
+        type: object
+        properties:
+          key: { type: string }
+          label: { type: string }
+          format: { type: string, enum: ['text', 'code', 'badge', 'boolean', 'markdown'] }
+    rows:
+      type: array
+      items:
+        type: object
+        additionalProperties: true

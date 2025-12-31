@@ -2,6 +2,7 @@
 
 # 1. Section: DocsLayout
 Section+DocsLayout:
+  wrapper: 'w-full'
   grid_container: 'grid grid-cols-1 md:grid-cols-[250px_1fr] lg:grid-cols-[250px_1fr_200px] gap-8 max-w-7xl mx-auto px-4 py-8 w-full'
   sidebar_left: 'hidden md:block'
   sidebar_right: 'hidden lg:block' 

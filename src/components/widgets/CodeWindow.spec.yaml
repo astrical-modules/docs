@@ -1,0 +1,19 @@
+Component+CodeWindow:
+  type: object
+  properties:
+    language: { type: string }
+    code: { type: string }
+    src: { type: string }
+    region: { type: string }
+    highlight: { type: string }
+    tabGroup: { type: string }
+    tabs:
+      type: array
+      items:
+        type: object
+        properties:
+          title: { type: string }
+          language: { type: string }
+          code: { type: string }
+          src: { type: string }
+          region: { type: string }

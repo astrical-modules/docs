@@ -1,0 +1,14 @@
+Component+CodeWindow:
+  type: object
+  properties:
+    window_container: { type: string }
+    header: { type: string }
+    single_header: { type: string }
+    filename: { type: string }
+    tabs_container: { type: string }
+    tab_button: { type: string }
+    tab_button_active: { type: string }
+    content_area: { type: string }
+    panel: { type: string }
+    code_block: { type: string }
+    copy_button: { type: string }

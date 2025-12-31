@@ -1,0 +1,57 @@
+# Theme Specification for @astrical/docs
+
+Ui+SidebarMenu:
+  type: object
+  properties:
+    nav: { type: string }
+    list: { type: string }
+    item: { type: string }
+    link: { type: string }
+    link_active: { type: string }
+    section_title: { type: string }
+
+Ui+PageTOC:
+  type: object
+  properties:
+    nav: { type: string }
+    title: { type: string }
+    list: { type: string }
+    item: { type: string }
+    link: { type: string }
+    link_active: { type: string }
+
+Ui+Breadcrumbs:
+  type: object
+  properties:
+    nav: { type: string }
+    list: { type: string }
+    item: { type: string }
+    link: { type: string }
+    separator: { type: string }
+    current: { type: string }
+
+Section+DocsLayout:
+  type: object
+  properties:
+    wrapper: { type: string }
+    grid_container: { type: string }
+    mobile_header: { type: string }
+    mobile_menu_toggle: { type: string }
+    sidebar_left: { type: string }
+    content_main: { type: string }
+    content_header: { type: string }
+    mobile_toc_wrapper: { type: string }
+    mobile_toc_summary: { type: string }
+    widgets_container: { type: string }
+    widget_wrapper: { type: string }
+    content_footer: { type: string }
+    pagination_nav: { type: string }
+    nav_btn: { type: string }
+    nav_btn_label: { type: string }
+    nav_btn_title: { type: string }
+    sidebar_right: { type: string }
+
+Component+Prose:
+  type: object
+  properties:
+    content: { type: string }

@@ -1,0 +1,11 @@
+Component+Endpoint:
+  container: 'space-y-6'
+  header: 'flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700'
+  method_badge: 'px-3 py-1 rounded text-sm font-bold tracking-wide uppercase'
+  path: 'font-mono text-sm text-gray-700 dark:text-gray-300 break-all'
+  description: 'px-1'
+  split_layout: 'flex flex-col lg:grid lg:grid-cols-2 gap-8'
+  left_col: 'space-y-4'
+  right_col: 'space-y-4'
+  params_table: 'shadow-none border-0'
+  response_window: 'my-0 shadow-lg'

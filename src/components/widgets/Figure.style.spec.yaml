@@ -1,0 +1,10 @@
+Component+Figure:
+  type: object
+  properties:
+    figure: { type: string }
+    wrapper: { type: string }
+    image: { type: string }
+    caption: { type: string }
+    lightbox_modal: { type: string }
+    lightbox_content: { type: string }
+    lightbox_close: { type: string }

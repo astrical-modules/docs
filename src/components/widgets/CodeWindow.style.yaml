@@ -1,0 +1,12 @@
+Component+CodeWindow:
+  window_container: 'overflow-hidden rounded-xl bg-gray-900 border border-gray-800 shadow-2xl my-6'
+  header: 'flex items-center min-h-[3rem] bg-gray-950 border-b border-gray-800'
+  single_header: 'flex items-center w-full'
+  filename: 'text-xs text-gray-400 font-mono text-center flex-1'
+  tabs_container: 'flex overflow-x-auto no-scrollbar'
+  tab_button: 'px-4 py-3 text-xs font-mono text-gray-400 border-r border-gray-800 hover:bg-gray-900 hover:text-gray-200 transition-colors data-[state=active]:bg-gray-900 data-[state=active]:text-yellow-400 data-[state=active]:border-b-2 data-[state=active]:border-b-yellow-400 -mb-px'
+  tab_button_active: 'bg-gray-900 text-yellow-400 border-b-2 border-b-yellow-400'
+  content_area: 'p-0 text-sm'
+  panel: 'w-full'
+  code_block: '!bg-transparent !p-4 overflow-x-auto text-[13px] leading-relaxed font-mono'
+  copy_button: 'absolute top-3 right-3 p-1.5 rounded-md bg-gray-800/50 hover:bg-gray-700 text-gray-400 opacity-0 group-hover:opacity-100 transition-all z-10'

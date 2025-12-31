@@ -1,0 +1,112 @@
+---
+import { getClasses } from '~/utils/theme';
+import type { TitledWidget } from '~/types';
+import TitledWidgetWrapper from '~/components/ui/TitledWidgetWrapper.astro';
+import DefinitionTable from './DefinitionTable.astro';
+import CodeWindow from './CodeWindow.astro';
+import { Icon } from 'astro-icon/components';
+
+export interface Props extends TitledWidget {
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  path: string;
+  description?: string;
+  parameters?: Array<Record<string, any>>;
+  responses?: Array<{ status: number; description: string; body: string }>;
+}
+
+const {
+  id,
+  title,
+  subtitle,
+  tagline,
+  bg,
+  classes: rawClasses = {},
+  method,
+  path,
+  description,
+  parameters = [],
+  responses = [],
+} = Astro.props;
+
+const classes = getClasses('Component+Endpoint', rawClasses);
+const widgetId = id || `endpoint-${Math.random().toString(36).substring(2, 9)}`;
+
+// Method colors
+const methodColors: Record<string, string> = {
+  GET: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  POST: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  PUT: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  DELETE: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  PATCH: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+};
+
+const parameterColumns = [
+  { key: 'name', label: 'Name', format: 'code' },
+  { key: 'type', label: 'Type', format: 'badge' },
+  { key: 'location', label: 'In', format: 'badge' },
+  { key: 'required', label: 'Required', format: 'boolean' },
+  { key: 'description', label: 'Description', format: 'markdown' },
+];
+
+const responseTabs = responses.map(res => ({
+  title: `${res.status} ${res.description || ''}`,
+  code: res.body,
+  language: 'json'
+}));
+---
+
+<TitledWidgetWrapper
+  type="Endpoint"
+  id={id}
+  classes={classes}
+  bg={bg}
+  title={title}
+  subtitle={subtitle}
+  tagline={tagline}
+>
+  <div class={classes.container} id={widgetId}>
+     {/* Header: Method + Path */}
+     <div class={classes.header}>
+        <span class={`${classes.method_badge} ${methodColors[method] || 'bg-gray-100'}`}>
+          {method}
+        </span>
+        <code class={classes.path}>{path}</code>
+     </div>
+
+     {/* Description */}
+     {description && (
+       <div class={classes.description}>
+          <slot name="description">
+            <div class="prose dark:prose-invert max-w-none">
+              <p>{description}</p>
+            </div>
+          </slot>
+       </div>
+     )}
+     
+     <div class={classes.split_layout}>
+       {/* Left: Inputs / Parameters */}
+       <div class={classes.left_col}>
+          {parameters.length > 0 && (
+             <DefinitionTable 
+               title="Parameters"
+               columns={parameterColumns}
+               rows={parameters}
+               classes={{ container: classes.params_table }}
+             />
+          )}
+       </div>
+
+       {/* Right: Outputs / Responses */}
+       <div class={classes.right_col}>
+          {responseTabs.length > 0 && (
+             <CodeWindow
+               title="Responses"
+               tabs={responseTabs}
+               classes={{ window_container: classes.response_window }}
+             />
+          )}
+       </div>
+     </div>
+  </div>
+</TitledWidgetWrapper>
