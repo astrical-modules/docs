@@ -1,0 +1,128 @@
+---
+/**
+ * Prose.astro
+ *
+ * This component renders a prose widget that displays markdown content, either provided
+ * inline or loaded from an external file. It's designed for rich text sections in documentation
+ * or marketing pages, supporting standard markdown formatting.
+ *
+ * Features:
+ * - Titled widget structure with optional title, subtitle, and tagline
+ * - Dual sourcing: Inline text or external file
+ * - Dynamic markdown parsing using 'marked'
+ * - Themeable styling through CSS classes
+ * - Accessible structure
+ *
+ * Props (extends TitledWidget interface):
+ * - id (optional): HTML id attribute for the widget container
+ * - title (optional): Widget title (can be passed via slot or prop)
+ * - subtitle (optional): Widget subtitle (can be passed via slot or prop)
+ * - tagline (optional): Widget tagline (can be passed via slot or prop)
+ * - text (optional): Inline markdown content to render
+ * - file (optional): Path to a markdown file to render (relative to content directory)
+ * - classes (optional): CSS class configuration object
+ * - bg (optional): Background image URL string
+ *
+ * Styling Inputs:
+ * - getClasses('Component+Prose'): Retrieves CSS classes for prose elements
+ *   from the theme's style configuration:
+ *   - wrapper: Classes for the TitledWidgetWrapper container (including wrapper)
+ *   - headline: Classes for the Headline component
+ *   - content: Classes for the markdown content container definition (typography)
+ *
+ * Component Integration:
+ * - TitledWidgetWrapper: Provides consistent titled widget structure
+ * - marked: Library for parsing markdown to HTML
+ * - getClasses: Manages theme-based styling
+ *
+ * Data Flow:
+ * 1. Receives configuration through Astro.props
+ * 2. Resolves content from 'text' prop or 'file' path
+ * 3. Parses markdown to HTML
+ * 4. Wraps content in TitledWidgetWrapper
+ * 5. Applies theme-based styling
+ */
+
+import type { TitledWidget } from "~/types";
+import TitledWidgetWrapper from "~/components/ui/TitledWidgetWrapper.astro";
+import { getClasses } from "~/utils/theme";
+import { marked } from "marked";
+import fs from "node:fs/promises";
+import path from "node:path";
+
+/**
+ * Component Props Interface extending TitledWidget
+ *
+ * @property text - Inline markdown content to render
+ * @property file - Path to a markdown file to render (relative to content directory)
+ */
+export interface Props extends TitledWidget {
+    text?: string;
+    file?: string;
+    classes?: Record<string, any>;
+}
+
+// Destructure props with defaults and slot content rendering
+const {
+    id,
+
+    // Render slot content for title, subtitle, and tagline if not provided as props
+    title = await Astro.slots.render("title"),
+    subtitle = await Astro.slots.render("subtitle"),
+    tagline = await Astro.slots.render("tagline"),
+
+    text = "",
+    file = "",
+    classes: rawClasses = {},
+    bg = "",
+} = Astro.props;
+
+const classes = getClasses("Component+Prose", rawClasses);
+
+// Logic to resolve content
+let content = text;
+if (file) {
+    try {
+        // Resolve file path logic
+        // We assume paths are relative to the project root or specific content dirs
+        const possiblePaths = [
+            path.join(process.cwd(), "content", file),
+            path.join(process.cwd(), "src/modules/docs/content", file),
+        ];
+
+        for (const p of possiblePaths) {
+            try {
+                // Check existance
+                await fs.access(p);
+                content = await fs.readFile(p, "utf-8");
+                break;
+            } catch (e) {
+                // Continue
+            }
+        }
+
+        if (!content && !text) {
+            console.warn(`[Prose] File not found: ${file}`);
+            content = `> **Error**: Could not load content from ${file}`;
+        }
+    } catch (e) {
+        console.error(`[Prose] Error reading file ${file}:`, e);
+        content = `> **Error**: Failed to read content file.`;
+    }
+}
+
+// Parse markdown
+const html = content ? await marked.parse(content) : "";
+---
+
+<TitledWidgetWrapper
+    type="Prose"
+    id={id}
+    classes={classes}
+    bg={bg}
+    title={title}
+    subtitle={subtitle}
+    tagline={tagline}
+>
+    <div class={classes.content} set:html={html} />
+</TitledWidgetWrapper>

@@ -1,0 +1,70 @@
+# DocsLayout Section Specification
+
+sections:
+  DocsLayout:
+    type: object
+    description: A specialized 3-column layout for documentation pages with responsive navigation and table of contents.
+    properties:
+      type:
+        type: string
+        required: true
+        enum: [DocsLayout]
+        description: Specifies the layout type. Must be 'DocsLayout'.
+      id:
+        type: string
+        description: An optional HTML id for the section.
+      sidebar:
+        type: string
+        description: The ID of the menu configuration to use for the left sidebar (default 'docs_sidebar').
+      components:
+        type: object
+        description: The content widgets to render in the center column.
+        properties:
+          main:
+            type: array
+            description: List of widgets to render.
+            items:
+              $ref: '#/definitions/EmbeddableComponent'
+      classes:
+        type: object
+        description: Override default styles for the layout elements.
+        properties:
+          wrapper:
+            type: object
+            description: Styles for the outer SectionWrapper.
+          grid_container:
+            type: string
+            description: The main CSS grid container.
+          sidebar_left:
+            type: string
+            description: The container for the left navigation sidebar.
+          sidebar_right:
+            type: string
+            description: The container for the right TOC sidebar.
+          content_main:
+            type: string
+            description: The center content column.
+          content_header:
+            type: string
+            description: Header area within main content.
+          widgets_container:
+            type: string
+            description: Wrapper around the list of widgets.
+          widget_wrapper:
+            type: string
+            description: Wrapper around each individual widget (used for anchors).
+          content_footer:
+            type: string
+            description: Footer area within main content (pagination).
+          pagination_nav:
+            type: string
+            description: Container for next/prev buttons.
+          nav_btn:
+            type: string
+            description: Base style for pagination buttons.
+          nav_btn_label:
+            type: string
+            description: Label text (e.g. 'Next') in pagination buttons.
+          nav_btn_title:
+            type: string
+            description: Page title text in pagination buttons.
